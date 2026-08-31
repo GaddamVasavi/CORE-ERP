@@ -16,6 +16,10 @@ import { ManufacturingOverviewPage } from '../pages/manufacturing/ManufacturingO
 import { HrOverviewPage } from '../pages/hr/HrOverviewPage';
 import { ProjectsOverviewPage } from '../pages/projects/ProjectsOverviewPage';
 import { AssetsOverviewPage } from '../pages/assets/AssetsOverviewPage';
+import { WorkflowsOverviewPage } from '../pages/workflows/WorkflowsOverviewPage';
+import { SupportOverviewPage } from '../pages/support/SupportOverviewPage';
+import { DocumentsOverviewPage } from '../pages/documents/DocumentsOverviewPage';
+import { AnalyticsReportsPage } from '../pages/analytics/AnalyticsReportsPage';
 
 export const AppRoutes: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -36,16 +40,14 @@ export const AppRoutes: React.FC = () => {
         <Route path="/hr/*" element={<HrOverviewPage />} />
         <Route path="/projects/*" element={<ProjectsOverviewPage />} />
         <Route path="/assets/*" element={<AssetsOverviewPage />} />
+        <Route path="/workflows/*" element={<WorkflowsOverviewPage />} />
+        <Route path="/support/*" element={<SupportOverviewPage />} />
+        <Route path="/documents/*" element={<DocumentsOverviewPage />} />
+        <Route path="/analytics/*" element={<AnalyticsReportsPage />} />
         
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/admin/audit" element={<AuditLogsPage />} />
         <Route path="/admin/settings" element={<TenantSettingsPage />} />
-
-        {/* Mapped in Phase 4 */}
-        <Route path="/support/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/analytics/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/documents/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/workflows/*" element={<ExecutiveDashboardPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
