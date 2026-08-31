@@ -8,6 +8,10 @@ import { ExecutiveDashboardPage } from '../pages/dashboard/ExecutiveDashboardPag
 import { UserManagementPage } from '../pages/admin/UserManagementPage';
 import { AuditLogsPage } from '../pages/admin/AuditLogsPage';
 import { TenantSettingsPage } from '../pages/admin/TenantSettingsPage';
+import { FinanceOverviewPage } from '../pages/finance/FinanceOverviewPage';
+import { SalesOverviewPage } from '../pages/sales/SalesOverviewPage';
+import { ProcurementOverviewPage } from '../pages/procurement/ProcurementOverviewPage';
+import { InventoryOverviewPage } from '../pages/inventory/InventoryOverviewPage';
 
 export const AppRoutes: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -20,15 +24,16 @@ export const AppRoutes: React.FC = () => {
       {/* Protected ERP Shell */}
       <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/login" replace />}>
         <Route path="/" element={<ExecutiveDashboardPage />} />
+        <Route path="/finance/*" element={<FinanceOverviewPage />} />
+        <Route path="/sales/*" element={<SalesOverviewPage />} />
+        <Route path="/procurement/*" element={<ProcurementOverviewPage />} />
+        <Route path="/inventory/*" element={<InventoryOverviewPage />} />
+        
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/admin/audit" element={<AuditLogsPage />} />
         <Route path="/admin/settings" element={<TenantSettingsPage />} />
-        
-        {/* Module Placeholders mapped in later phases */}
-        <Route path="/finance/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/sales/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/procurement/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/inventory/*" element={<ExecutiveDashboardPage />} />
+
+        {/* Mapped in Phase 3 & 4 */}
         <Route path="/manufacturing/*" element={<ExecutiveDashboardPage />} />
         <Route path="/hr/*" element={<ExecutiveDashboardPage />} />
         <Route path="/projects/*" element={<ExecutiveDashboardPage />} />
