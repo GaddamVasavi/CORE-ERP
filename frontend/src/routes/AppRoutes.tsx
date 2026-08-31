@@ -12,6 +12,10 @@ import { FinanceOverviewPage } from '../pages/finance/FinanceOverviewPage';
 import { SalesOverviewPage } from '../pages/sales/SalesOverviewPage';
 import { ProcurementOverviewPage } from '../pages/procurement/ProcurementOverviewPage';
 import { InventoryOverviewPage } from '../pages/inventory/InventoryOverviewPage';
+import { ManufacturingOverviewPage } from '../pages/manufacturing/ManufacturingOverviewPage';
+import { HrOverviewPage } from '../pages/hr/HrOverviewPage';
+import { ProjectsOverviewPage } from '../pages/projects/ProjectsOverviewPage';
+import { AssetsOverviewPage } from '../pages/assets/AssetsOverviewPage';
 
 export const AppRoutes: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -28,16 +32,16 @@ export const AppRoutes: React.FC = () => {
         <Route path="/sales/*" element={<SalesOverviewPage />} />
         <Route path="/procurement/*" element={<ProcurementOverviewPage />} />
         <Route path="/inventory/*" element={<InventoryOverviewPage />} />
+        <Route path="/manufacturing/*" element={<ManufacturingOverviewPage />} />
+        <Route path="/hr/*" element={<HrOverviewPage />} />
+        <Route path="/projects/*" element={<ProjectsOverviewPage />} />
+        <Route path="/assets/*" element={<AssetsOverviewPage />} />
         
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/admin/audit" element={<AuditLogsPage />} />
         <Route path="/admin/settings" element={<TenantSettingsPage />} />
 
-        {/* Mapped in Phase 3 & 4 */}
-        <Route path="/manufacturing/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/hr/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/projects/*" element={<ExecutiveDashboardPage />} />
-        <Route path="/assets/*" element={<ExecutiveDashboardPage />} />
+        {/* Mapped in Phase 4 */}
         <Route path="/support/*" element={<ExecutiveDashboardPage />} />
         <Route path="/analytics/*" element={<ExecutiveDashboardPage />} />
         <Route path="/documents/*" element={<ExecutiveDashboardPage />} />
