@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: coreerp-postgres
+    environment:
+      POSTGRES_DB: coreerp_db
+      POSTGRES_USER: coreerp_user
+      POSTGRES_PASSWORD: coreerp_secure_password_2026
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coreerp_user -d coreerp_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coreerp-network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: coreerp-redis
+    command: redis-server --requirepass coreerp_redis_secret
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "coreerp_redis_secret", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coreerp-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: coreerp-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - coreerp-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: coreerp-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - coreerp-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: coreerp-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coreerp_db
+      SPRING_DATASOURCE_USERNAME: coreerp_user
+      SPRING_DATASOURCE_PASSWORD: coreerp_secure_password_2026
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: coreerp_redis_secret
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      JWT_SECRET: c2VjdXJlX2VudGVycHJpc2Vfc2Fhc19qd3Rfc2VjcmV0X2tleV8yMDI2X2NvcmVlcnBfcGxhdGZvcm0=
+      JWT_EXPIRATION_MS: 86400000
+      JWT_REFRESH_EXPIRATION_MS: 604800000
+    ports:
+      - "8080:8080"
+    networks:
+      - coreerp-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: coreerp-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - coreerp-network
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: coreerp-nginx-gateway
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - coreerp-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  coreerp-network:
+    driver: bridge

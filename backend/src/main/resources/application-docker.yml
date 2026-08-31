@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/coreerp_db
+    username: coreerp_user
+    password: coreerp_secure_password_2026
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: coreerp_redis_secret
+  kafka:
+    bootstrap-servers: kafka:29092
