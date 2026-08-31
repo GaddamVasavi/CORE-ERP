@@ -1,0 +1,61 @@
+package com.coreerp.workflow;
+
+import com.coreerp.domain.workflow.service.WorkflowEnterpriseServicePart5;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class WorkflowServicePart5Tests {
+
+    private WorkflowEnterpriseServicePart5 service;
+
+    @BeforeEach
+    void setUp() {
+        service = new WorkflowEnterpriseServicePart5();
+    }
+
+    @Test
+    @DisplayName("Verify valid workflow operation execution and checksum integrity")
+    void testSuccessfulOperationExecution() {
+        WorkflowEnterpriseServicePart5.TransactionContext context =
+                WorkflowEnterpriseServicePart5.TransactionContext.builder()
+                        .transactionId("TX-WORKFLOW-001")
+                        .tenantId("tenant-test-id")
+                        .initiatorUserId("user-test-id")
+                        .operationType("PROCESS_WORKFLOW_BATCH")
+                        .totalAmount(new BigDecimal("10000.00"))
+                        .attributes(new HashMap<>())
+                        .build();
+
+        WorkflowEnterpriseServicePart5.ExecutionSummary summary =
+                service.processOperation(context);
+
+        assertNotNull(summary);
+        assertTrue(summary.isSuccessful());
+        assertNotNull(summary.getExecutionId());
+        assertTrue(summary.getProcessedFinancialImpact().compareTo(BigDecimal.ZERO) > 0);
+    }
+
+    @Test
+    @DisplayName("Verify workflow validation flags invalid negative total amounts")
+    void testValidationNegativeAmount() {
+        WorkflowEnterpriseServicePart5.TransactionContext context =
+                WorkflowEnterpriseServicePart5.TransactionContext.builder()
+                        .transactionId("TX-WORKFLOW-002")
+                        .operationType("VALIDATE")
+                        .totalAmount(new BigDecimal("-500.00"))
+                        .build();
+
+        WorkflowEnterpriseServicePart5.ValidationResult res =
+                service.validateOperation(context);
+
+        assertFalse(res.isValid());
+        assertTrue(res.getErrorMessages().size() > 0);
+    }
+}
